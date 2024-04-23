@@ -2,7 +2,6 @@ import numpy as np
 from collections import Counter
 
 Actions = {
-  "DRAW": 0,
   "SETTLE": 1,
   "CITY": 2,
   "ROAD": 3,

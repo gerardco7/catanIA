@@ -177,7 +177,6 @@ class BasicBoard:
       return self.board[y][x]
     return None
 
-
   """
   Method: printBoard
   ---------------------------
@@ -368,5 +367,3 @@ class BasicBoard:
 
     return self.getUnoccupiedNeighbors(tile, diagonals=False)
   
-  def deepcopy(self):
-    return copy.deepcopy(self)

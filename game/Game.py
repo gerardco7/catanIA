@@ -64,36 +64,30 @@ class GameState:
       # Look at all unoccupied edges coming from the player's existing settlements and cities
       agentSettlements = []; agentSettlements.extend(agent.settlements); agentSettlements.extend(agent.cities)
       for settlement in agentSettlements:
-
-        # TODO: getEdgesOfVertex is not implemented
-        currEdges = self.board.getEdgesOfVertex(settlement)
-        for currEdge in currEdges:
-          if not currEdge.isOccupied():
-            if (Actions["ROAD"], currEdge) not in legalActions:
-              legalActions.add((Actions["ROAD"], currEdge))
+        tiles = self.board.getUnoccupiedNeighbors(tile, diagonals=False)
+        for tile in tiles:
+            if not tile.isOccupied(): 
+              if (Actions["ROAD"], tile) not in legalActions:
+                legalActions.add((Actions["ROAD"], tile)) 
 
       # Look at all unoccupied edges coming from the player's existing roads
       for road in agent.roads:
-        # TODO: getVertexEnds is not implemented
-        currVertices = self.board.getVertexEnds(road)
-        for vertex in currVertices:
-          if vertex.player != None and vertex.player != agentIndex: continue
-          currEdges = self.board.getEdgesOfVertex(vertex)
-          for currEdge in currEdges:
-            if not currEdge.isOccupied(): 
-              if (Actions["ROAD"], currEdge) not in legalActions:
-                legalActions.add((Actions["ROAD"], currEdge)) 
+        tiles = self.board.getUnoccupiedRoadEndpoints(road)
+        for tile in tiles:
+            if not tile.isOccupied(): 
+              if (Actions["ROAD"], tile) not in legalActions:
+                legalActions.add((Actions["ROAD"], tile)) 
 
     # If they can settle...
     if agent.canSettle():
 
       # Look at all unoccupied endpoints of the player's existing roads
       for road in agent.roads:
-        possibleSettlements = self.board.getVertexEnds(road)
-        for possibleSettlement in possibleSettlements:
-          if possibleSettlement.canSettle:
-            if (Actions["SETTLE"], possibleSettlement) not in legalActions:
-              legalActions.add((Actions["SETTLE"], possibleSettlement))
+        tiles = self.board.getUnoccupiedRoadEndpoints(road)
+        for tile in tiles:
+          if tile.canSettle:
+            if (Actions["SETTLE"], tile) not in legalActions:
+              legalActions.add((Actions["SETTLE"], tile))
 
     # If they can build a city...
     if agent.canBuildCity():
@@ -178,11 +172,17 @@ class GameState:
     given dice roll.
     -----------------------------------------
     """
+    someone_received = False
     for agent in self.playerAgents:
       gainedResources = agent.updateResources(diceRoll, self.board)
       if VERBOSE:
-        print(str(agent.name) + " received: " + str(gainedResources))
-        print(str(agent.name) + " now has: " + str(agent.resources))
+        if gainedResources != Counter():
+          print(str(agent.name) + " received: " + str(gainedResources))
+          print(str(agent.name) + " now has: " + str(agent.resources))
+          someone_received = True
+    if VERBOSE:
+      if not someone_received:
+        print("No one received resources this turn")
 
 
 class Game:
@@ -233,34 +233,38 @@ class Game:
     turnNumber = 1
     currentAgentIndex = 0
 
-    # Each player has to place 2 settlements and 2 roads
-    for i in range(2):
-      for agentIndex in range(self.gameState.getNumPlayerAgents()):
-        currentAgent = self.gameState.playerAgents[agentIndex]
-        legalActions = self.gameState.getLegalActions(agentIndex)
+    # Each player has to place 1 settlements and 1 roads
+    for agentIndex in range(self.gameState.getNumPlayerAgents()):
+      currentAgent = self.gameState.playerAgents[agentIndex]
+      legalActions = self.gameState.getLegalActions(agentIndex)
 
-        if VERBOSE:
-          print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement?")
-          self.gameState.board.printBoard()
-       
-        x = input()
-        action = (Actions["SETTLE"], self.gameState.board.getTile(x[0], x[1]))
-    
-        self.gameState.board.applyAction(agentIndex, action)
-        self.moveHistory.append((currentAgent.name, action))
+      if VERBOSE:
+        print("---------- TURN " + str(turnNumber) + " --------------")
+        print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement?")
+        self.gameState.board.printBoard()
+      
+      x = input("Enter x: ")
+      y = input("Enter y: ")
+      action = (Actions["SETTLE"], self.gameState.board.getTile(int(x), int(y)))
+  
+      currentAgent.applyAction(agentIndex, action)
+      self.moveHistory.append((currentAgent.name, action))
 
-        if VERBOSE:
-          print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your road?")
-          self.gameState.board.printBoard()
-        
-        x = input()
-        action = (Actions["ROAD"], self.gameState.board.getTile(x[0], x[1]))
+      currentAgent.collectInitialResources(self.gameState.board)
 
-        self.gameState.board.applyAction(agentIndex, action)
-        self.moveHistory.append((currentAgent.name, action))
+      if VERBOSE:
+        print("Where do you want to place your road?")
+        self.gameState.board.printBoard()
+      
+      x = input("Enter x: ")
+      y = input("Enter y: ")
+      action = (Actions["ROAD"], self.gameState.board.getTile(int(x), int(y)))
 
-        currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
-        turnNumber += 1
+      currentAgent.applyAction(agentIndex, action)
+      self.moveHistory.append((currentAgent.name, action))
+
+      currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
+      turnNumber += 1
 
     while (self.gameState.gameOver() < 0):
       # Initial information
@@ -271,6 +275,7 @@ class Game:
 
       # Print player info
       if VERBOSE:
+        self.gameState.board.printBoard()
         print("PLAYER INFO:")
         for a in self.gameState.playerAgents:
           print(a)
@@ -279,12 +284,34 @@ class Game:
       diceRoll = self.gameState.diceAgent.rollDice()
       if VERBOSE: print("Rolled a " + str(diceRoll))
       self.gameState.updatePlayerResourcesForDiceRoll(diceRoll)
+
+      # Print player info
+      if VERBOSE:
+        print("PLAYER INFO:")
+        for a in self.gameState.playerAgents:
+          print(a)
+
       # The current player performs 1 action, input the action from the list of legal actions
-      action = currentAgent.getAction(self.gameState)
-      if VERBOSE: 
-        print("Best Action: " + str(action))
+      legalActions = self.gameState.getLegalActions(currentAgentIndex)
+      if VERBOSE:
+        print("LEGAL ACTIONS:")
+        for action in legalActions:
+          print(action)
+
+      if len(legalActions) == 0:
+        if VERBOSE:
+          print("No legal actions for " + str(currentAgent.name) + ". Skipping turn.")
+        currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
+        turnNumber += 1
+        continue
+
+      a = input("Enter your action: \n 'SETTLE': 1 \n 'CITY': 2 \n 'ROAD': 3 \n 'TRADE': 4 ")
+      x = input("Enter x: ")
+      y = input("Enter y: ")
+
+      action = (a, self.gameState.board.getTile(int(x), int(y)))
+
       currentAgent.applyAction(action, self.gameState.board)
-      self.gameState.board.applyAction(currentAgent.agentIndex, action)
       
       if VERBOSE:# Print out the updated game state
         if (action != None):
@@ -306,4 +333,6 @@ class Game:
     agentLoser = self.gameState.playerAgents[1-winner]
     if VERBOSE: print(agentWinner.name + " won the game")
     return (winner, turnNumber, agentWinner.victoryPoints - agentLoser.victoryPoints)
+  
+Game().start()
     
