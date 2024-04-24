@@ -174,7 +174,7 @@ class BasicBoard:
   """
   def getTile(self, x, y):
     if 0 <= x < self.size and 0 <= y < self.size:
-      return self.board[y][x]
+      return self.board[x][y]
     return None
 
   """
@@ -342,7 +342,7 @@ class BasicBoard:
   def isValidSettlementLocation(self, tile):
     # It's a valid settlement location if there are no other settlements
     # within 1 space of this one
-    occupiedNeighbors = self.getOccupiedNeighbors(tile)
+    occupiedNeighbors = self.getOccupiedNeighbors(tile, diagonals=False)
     for neighbor in occupiedNeighbors:
       if neighbor.structure == Structure["SETTLEMENT"]:
         return False

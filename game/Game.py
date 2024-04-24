@@ -64,7 +64,7 @@ class GameState:
       # Look at all unoccupied edges coming from the player's existing settlements and cities
       agentSettlements = []; agentSettlements.extend(agent.settlements); agentSettlements.extend(agent.cities)
       for settlement in agentSettlements:
-        tiles = self.board.getUnoccupiedNeighbors(tile, diagonals=False)
+        tiles = self.board.getUnoccupiedNeighbors(settlement, diagonals=False)
         for tile in tiles:
             if not tile.isOccupied(): 
               if (Actions["ROAD"], tile) not in legalActions:
@@ -80,12 +80,11 @@ class GameState:
 
     # If they can settle...
     if agent.canSettle():
-
       # Look at all unoccupied endpoints of the player's existing roads
       for road in agent.roads:
         tiles = self.board.getUnoccupiedRoadEndpoints(road)
         for tile in tiles:
-          if tile.canSettle:
+          if not tile.isOccupied() and self.board.isValidSettlementLocation(tile): 
             if (Actions["SETTLE"], tile) not in legalActions:
               legalActions.add((Actions["SETTLE"], tile))
 
@@ -219,7 +218,7 @@ class Game:
     Method: start
     ----------------------
     Parameters: NA
-    Returns: NA
+    Returns: NAz
 
     Begins the game by running the main game loop.
     ----------------------
@@ -246,8 +245,9 @@ class Game:
       x = input("Enter x: ")
       y = input("Enter y: ")
       action = (Actions["SETTLE"], self.gameState.board.getTile(int(x), int(y)))
-  
-      currentAgent.applyAction(agentIndex, action)
+
+      self.gameState.board.applyAction(agentIndex, action)
+      currentAgent.settlements.append(action[1])
       self.moveHistory.append((currentAgent.name, action))
 
       currentAgent.collectInitialResources(self.gameState.board)
@@ -260,7 +260,8 @@ class Game:
       y = input("Enter y: ")
       action = (Actions["ROAD"], self.gameState.board.getTile(int(x), int(y)))
 
-      currentAgent.applyAction(agentIndex, action)
+      self.gameState.board.applyAction(agentIndex, action)
+      currentAgent.roads.append(action[1])
       self.moveHistory.append((currentAgent.name, action))
 
       currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
@@ -274,7 +275,7 @@ class Game:
         print("It's " + str(currentAgent.name) + "'s turn!")
 
       # Print player info
-      if VERBOSE:
+      if not VERBOSE:
         self.gameState.board.printBoard()
         print("PLAYER INFO:")
         for a in self.gameState.playerAgents:
@@ -288,11 +289,11 @@ class Game:
       # Print player info
       if VERBOSE:
         print("PLAYER INFO:")
-        for a in self.gameState.playerAgents:
-          print(a)
+        print(currentAgent)
 
       # The current player performs 1 action, input the action from the list of legal actions
       legalActions = self.gameState.getLegalActions(currentAgentIndex)
+
       if VERBOSE:
         print("LEGAL ACTIONS:")
         for action in legalActions:
@@ -305,19 +306,18 @@ class Game:
         turnNumber += 1
         continue
 
-      a = input("Enter your action: \n 'SETTLE': 1 \n 'CITY': 2 \n 'ROAD': 3 \n 'TRADE': 4 ")
+      self.gameState.board.printBoard()
+
+      a = input("Enter your action: \n 'SETTLE': 1 \n 'CITY': 2 \n 'ROAD': 3 \n 'TRADE': 4 \n")
       x = input("Enter x: ")
       y = input("Enter y: ")
 
-      action = (a, self.gameState.board.getTile(int(x), int(y)))
-
+      action = [a, self.gameState.board.getTile(int(x), int(y))]
       currentAgent.applyAction(action, self.gameState.board)
-      
+    
       if VERBOSE:# Print out the updated game state
-        if (action != None):
           print(str(currentAgent.name) + " took action " + str(action[0]) + " at " + str(action[1]) + "\n")
-        else:
-          print(str(currentAgent.name) + " had no actions to take")
+
       # Track the game's move history
       self.moveHistory.append((currentAgent.name, action))
       # Go to the next player/turn

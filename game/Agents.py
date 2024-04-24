@@ -102,7 +102,7 @@ class PlayerAgent(object):
     self.cities = []
 
     # Counter of resources initialized to zero
-    self.resources = Counter({i: 0 for i in range(5)})
+    self.resources = Counter({i: 2 for i in range(5)})
     
   def __repr__(self):
     """
@@ -210,44 +210,44 @@ class PlayerAgent(object):
     lists of roads, settlements, and cities.
     -----------------------
     """
-    if action is None:
+    if action == None:
       return
 
+    action[0] = int(action[0])
     # Settling
-    if action[0] is Actions["SETTLE"]:
+    if action[0] == Actions["SETTLE"]:
       if not self.canSettle():
         raise Exception("Player " + str(self.agentIndex) + " doesn't have enough resources to build a settlement!")
       
       # Add this settlement to our settlements list and update victory
       # points and resources
-      actionTile = action[1]
-      tile = board.getTile(actionTile.x, actionTile.y)
+      print("Aplicando settle")
+      tile = action[1]
       board.applyAction(self.agentIndex, action)
       self.settlements.append(tile)
       self.resources.subtract(SETTLEMENT_COST)
       self.victoryPoints += SETTLEMENT_VICTORY_POINTS
 
     # Building a road
-    if action[0] is Actions["ROAD"]:
+    if action[0] == Actions["ROAD"]:
       if not self.canBuildRoad():
         raise Exception("Player " + str(self.agentIndex) + " doesn't have enough resources to build a road!")
 
       # Add this road to our roads list and update resources
-      actionTile = action[1]
-      road = board.getTile(actionTile.x, actionTile.y)
+      print("Aplicando road")
+      road = action[1]
       board.applyAction(self.agentIndex, action)
       self.roads.append(road)
       self.resources.subtract(ROAD_COST)
 
     # Building a city
-    if action[0] is Actions["CITY"]:
+    if action[0] == Actions["CITY"]:
       if not self.canBuildCity():
         raise Exception("Player " + str(self.agentIndex) + " doesn't have enough resources to build a city!")
       
       # Add this city to our list of cities and remove this city
       # from our list of settlements (since it was formerly a settlement)
-      actionTile = action[1]
-      tile = board.getTile(actionTile.x, actionTile.y)
+      tile = action[1]
       board.applyAction(self.agentIndex, action)
       self.cities.append(tile)
       for settlement in self.settlements:
