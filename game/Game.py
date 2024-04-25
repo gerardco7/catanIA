@@ -1,4 +1,4 @@
-from Board import *
+from BoardCopy import *
 from GameConstants import *
 from Agents import *
 
@@ -31,7 +31,7 @@ class GameState:
     ------------------------------
     """
     
-    self.board = BasicBoard()
+    self.board = Board()
     self.playerAgents = [PlayerAgent("yera", 0), PlayerAgent("krati", 1), PlayerAgent("juan", 2), PlayerAgent("isi", 3)]
 
     # Make the dice agent
@@ -239,7 +239,7 @@ class Game:
 
       if VERBOSE:
         print("---------- TURN " + str(turnNumber) + " --------------")
-        print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement?")
+        print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement? \n")
         self.gameState.board.printBoard()
       
       x = input("Enter x: ")
@@ -302,6 +302,7 @@ class Game:
       if len(legalActions) == 0:
         if VERBOSE:
           print("No legal actions for " + str(currentAgent.name) + ". Skipping turn.")
+          
         currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
         turnNumber += 1
         continue

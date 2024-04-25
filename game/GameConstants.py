@@ -9,11 +9,12 @@ Actions = {
 }
 
 ResourceTypes = {
-  "BRICK": 0,
-  "WOOL": 1,
-  "ORE": 2,
-  "GRAIN": 3,
-  "LUMBER": 4
+  "BRICK ": 0,
+  " WOOL ": 1,
+  " ORE  ": 2,
+  "GRAIN ": 3,
+  "LUMBER": 4,
+  " NONE ": -1
 }
 
 Structure = {
@@ -22,6 +23,12 @@ Structure = {
   "CITY": 2,
   "NONE": 3
 }
+
+def value2key(diccionario, valor):
+    for clave, val in diccionario.items():
+        if val == valor:
+            return clave
+    return None  # Devolver None si el valor no se encuentra en el diccionario
 
 VERBOSE = True
 

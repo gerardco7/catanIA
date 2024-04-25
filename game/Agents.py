@@ -1,4 +1,4 @@
-from Board import *
+from BoardCopy import *
 from GameConstants import *
 from collections import Counter
 import copy
@@ -102,7 +102,7 @@ class PlayerAgent(object):
     self.cities = []
 
     # Counter of resources initialized to zero
-    self.resources = Counter({i: 2 for i in range(5)})
+    self.resources = Counter({i: 0 for i in range(5)})
     
   def __repr__(self):
     """
@@ -221,7 +221,6 @@ class PlayerAgent(object):
       
       # Add this settlement to our settlements list and update victory
       # points and resources
-      print("Aplicando settle")
       tile = action[1]
       board.applyAction(self.agentIndex, action)
       self.settlements.append(tile)
@@ -234,7 +233,6 @@ class PlayerAgent(object):
         raise Exception("Player " + str(self.agentIndex) + " doesn't have enough resources to build a road!")
 
       # Add this road to our roads list and update resources
-      print("Aplicando road")
       road = action[1]
       board.applyAction(self.agentIndex, action)
       self.roads.append(road)
@@ -298,7 +296,9 @@ class PlayerAgent(object):
       # Find all tiles bordering this settlement and
       # take 1 resource of each of the surrounding tile types
       tile = board.getTile(settlement.x, settlement.y)
-      self.resources[tile.resource] += 1
+      for hexagons in tile.hexagonids:
+        hexagon = board.hexagons[hexagons]
+        self.resources[hexagon.resource] += 1
 
 
   def hasWon(self):
