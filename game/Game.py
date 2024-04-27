@@ -233,39 +233,44 @@ class Game:
     currentAgentIndex = 0
 
     # Each player has to place 1 settlements and 1 roads
-    for agentIndex in range(self.gameState.getNumPlayerAgents()):
-      currentAgent = self.gameState.playerAgents[agentIndex]
-      legalActions = self.gameState.getLegalActions(agentIndex)
+    for i in range(NUM_INITIAL_SETTLEMENTS):
+      for agentIndex in range(self.gameState.getNumPlayerAgents()):
+        currentAgent = self.gameState.playerAgents[agentIndex]
+        legalActions = self.gameState.getLegalActions(agentIndex)
 
-      if VERBOSE:
-        print("---------- TURN " + str(turnNumber) + " --------------")
-        print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement? \n")
-        self.gameState.board.printBoard()
-      
-      x = input("Enter x: ")
-      y = input("Enter y: ")
-      action = (Actions["SETTLE"], self.gameState.board.getTile(int(x), int(y)))
+        if VERBOSE:
+          print("---------- TURN " + str(turnNumber) + " --------------")
+          print("It's " + str(currentAgent.name) + "'s turn!. Where do you want to place your settlement? \n")
+          self.gameState.board.printBoard()
+        
+        x = input("Enter x: ")
+        y = input("Enter y: ")
+        action = (Actions["SETTLE"], self.gameState.board.getTile(int(x), int(y)))
 
-      self.gameState.board.applyAction(agentIndex, action)
-      currentAgent.settlements.append(action[1])
-      self.moveHistory.append((currentAgent.name, action))
+        self.gameState.board.applyAction(agentIndex, action)
+        currentAgent.settlements.append(action[1])
+        self.moveHistory.append((currentAgent.name, action))
 
-      currentAgent.collectInitialResources(self.gameState.board)
+        if VERBOSE:
+          print("Where do you want to place your road?")
+          self.gameState.board.printBoard()
+        
+        x = input("Enter x: ")
+        y = input("Enter y: ")
+        action = (Actions["ROAD"], self.gameState.board.getTile(int(x), int(y)))
 
-      if VERBOSE:
-        print("Where do you want to place your road?")
-        self.gameState.board.printBoard()
-      
-      x = input("Enter x: ")
-      y = input("Enter y: ")
-      action = (Actions["ROAD"], self.gameState.board.getTile(int(x), int(y)))
+        self.gameState.board.applyAction(agentIndex, action)
+        currentAgent.roads.append(action[1])
+        self.moveHistory.append((currentAgent.name, action))
 
-      self.gameState.board.applyAction(agentIndex, action)
-      currentAgent.roads.append(action[1])
-      self.moveHistory.append((currentAgent.name, action))
+        currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
+        turnNumber += 1
 
-      currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
-      turnNumber += 1
+      for agentIndex in range(self.gameState.getNumPlayerAgents()):
+        currentAgent.collectInitialResources(self.gameState.board)
+
+        if VERBOSE:
+          currentAgent.printresources()
 
     while (self.gameState.gameOver() < 0):
       # Initial information

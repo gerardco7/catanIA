@@ -1,6 +1,12 @@
 import numpy as np
 from collections import Counter
 
+def value2key(diccionario, valor):
+    for clave, val in diccionario.items():
+        if val == valor:
+            return clave
+    return None  # Devolver None si el valor no se encuentra en el diccionario
+
 Actions = {
   "SETTLE": 1,
   "CITY": 2,
@@ -24,11 +30,6 @@ Structure = {
   "NONE": 3
 }
 
-def value2key(diccionario, valor):
-    for clave, val in diccionario.items():
-        if val == valor:
-            return clave
-    return None  # Devolver None si el valor no se encuentra en el diccionario
 
 VERBOSE = True
 
@@ -73,3 +74,12 @@ DEPTH = 3
 
 # Types of Agents
 AGENT = np.array(["PLAYER_AGENT", "DICE_AGENT"])
+
+COLORS = [
+  "\033[91m", # Rojo
+  "\033[92m",  # Verde
+  "\033[94m",  # Azul
+  "\033[93m",  # Amarillo
+]
+
+END_COLOR = "\033[0m"

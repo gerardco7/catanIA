@@ -92,6 +92,7 @@ class PlayerAgent(object):
     self.agentIndex = agentIndex
     self.victoryPoints = 0
 
+
     # List of roads
     self.roads = []
 
@@ -257,6 +258,21 @@ class PlayerAgent(object):
       self.resources.subtract(CITY_COST)
       self.victoryPoints += CITY_VICTORY_POINTS
 
+  def printresources(self):
+    """
+    Method: printresources
+    -----------------------
+    Parameters: NA
+    Returns: NA
+
+    Prints the current resources of the player in a nice format.
+    -----------------------
+    """
+    print("Player " + self.name + " has the following resources:")
+    for resource in self.resources:
+      if resource != -1:
+        print(value2key(ResourceTypes, resource) + ": " + str(self.resources[resource])) 
+
   def updateResources(self, diceRoll, board):
     """
     Method: updateResources
@@ -272,7 +288,9 @@ class PlayerAgent(object):
     -----------------------------
     """
     newResources = board.getResourcesFromDieRoll(self.agentIndex, diceRoll)
-    self.resources += newResources
+    for resource in newResources:
+      if resource != -1:
+        self.resources[resource] += newResources[resource]
     return newResources
 
 
@@ -296,9 +314,10 @@ class PlayerAgent(object):
       # Find all tiles bordering this settlement and
       # take 1 resource of each of the surrounding tile types
       tile = board.getTile(settlement.x, settlement.y)
-      for hexagons in tile.hexagonids:
-        hexagon = board.hexagons[hexagons]
-        self.resources[hexagon.resource] += 1
+      for hexagonid in tile.hexagonids:
+        hexagon = board.hexagons[hexagonid]
+        if hexagon.resource != -1:
+          self.resources[hexagon.resource] += 1
 
 
   def hasWon(self):

@@ -116,7 +116,7 @@ class Tile:
   
   def addHexagon(self, hexagon):
     self.hexagonids.append(hexagon.id)
-  
+
 
   """
   Method: __repr__ method
@@ -155,8 +155,12 @@ class Tile:
   def strRepresentation(self):
     if self.isWater(): return "XX"
     if not self.isOccupied(): return "--"
-    if self.structure == Structure["ROAD"]: return "R" + str(self.player)
-    if self.structure == Structure["SETTLEMENT"]: return "S" + str(self.player)
+    if self.structure == Structure["ROAD"]:
+        return COLORS[self.player] + "R" + str(self.player) + END_COLOR
+    if self.structure == Structure["SETTLEMENT"]:
+        return COLORS[self.player]  + "S" + str(self.player) + END_COLOR
+    if self.structure == Structure["CITY"]:
+        return COLORS[self.player]  + "C" + str(self.player) + END_COLOR
     raise Exception("strRepresentation - invalid tile")
   
 
@@ -215,17 +219,16 @@ class Board:
     self.hexagons[17].addTiles([Tile(4, 4), Tile(4, 5), Tile(4, 6), Tile(5, 4), Tile(5, 5), Tile(5, 6)])
     self.hexagons[18].addTiles([Tile(4, 6), Tile(4, 7), Tile(4, 8), Tile(5, 6), Tile(5, 7), Tile(5, 8)])
 
-
-    for i in range(19):
-      for tile in self.hexagons[i].tiles:
-        tile.addHexagon(self.hexagons[i])
-
     self.board = []
     for i in range(size_x):
       boardRow = []
       for j in range(size_y):
           boardRow.append(Tile(i, j))
       self.board.append(boardRow)
+
+    for i in range(19):
+      for tile in self.hexagons[i].tiles:
+        self.getTile(tile.x, tile.y).addHexagon(self.hexagons[i])
 
     self.settlements = []
     self.roads = []
