@@ -115,10 +115,7 @@ class PlayerAgent(object):
     """
     s = "---------- " + self.name + " ----------\n"
     s += "Victory points: " + str(self.victoryPoints) + "\n"
-    s += "Resources: " + str(self.resources) + "\n"
-    s += "Settlements (" + str(len(self.settlements)) + "): " + str(self.settlements) + "\n"
-    s += "Roads (" + str(len(self.roads)) + "): " + str(self.roads) + "\n"
-    s += "Cities (" + str(len(self.cities)) + "): " + str(self.cities) + "\n"
+    s += "Resources: " + self.printResources() + "\n"
     s += "--------------------------------------------\n"
     return s
 
@@ -258,9 +255,9 @@ class PlayerAgent(object):
       self.resources.subtract(CITY_COST)
       self.victoryPoints += CITY_VICTORY_POINTS
 
-  def printresources(self):
+  def printResources(self):
     """
-    Method: printresources
+    Method: printResources
     -----------------------
     Parameters: NA
     Returns: NA
@@ -268,10 +265,11 @@ class PlayerAgent(object):
     Prints the current resources of the player in a nice format.
     -----------------------
     """
-    print("Player " + self.name + " has the following resources:")
+    c = ""
     for resource in self.resources:
       if resource != -1:
-        print(value2key(ResourceTypes, resource) + ": " + str(self.resources[resource])) 
+        c += value2key(ResourceTypes, resource) + ": " + str(self.resources[resource]) + " "
+    return c
 
   def updateResources(self, diceRoll, board):
     """

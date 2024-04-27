@@ -17,7 +17,7 @@ class Hexagon:
     tiles = self.tiles
     val = "--------------HEXAGON INFO---------------\n"
     val += "Hexagon: " + str(self.id) +"\n"
-    val += "Resource Type: " + str(self.resource) +"\n"
+    val += "Resource Type: " + value2key(ResourceTypes,self.resource) +"\n"
     val += "Tile number: " + str(self.number) +"\n"
     return val
 
@@ -130,7 +130,7 @@ class Tile:
   def __repr__(self):
     val = "--------------TILE INFO AT (" + str(self.x) + ", " + str(self.y) + ")---------------\n"
     val += "Owned by player: " + str(self.player) +"\n"
-    val += "Structure: " + str(self.structure) +"\n"
+    val += "Structure: " + value2key(Structure,self.structure) +"\n"
     return val
   
 
@@ -193,7 +193,7 @@ class Board:
       if i == 9:
         hexagon = Hexagon(-1, 7, 9)
       elif i == 18:
-        hexagon = Hexagon(possibleResources[9], possiblenumbers[9], 19)
+        hexagon = Hexagon(possibleResources[9], possiblenumbers[9], 18)
       else:
         hexagon = Hexagon(possibleResources[i], possiblenumbers[i], i)
       self.hexagons.append(hexagon)
@@ -387,6 +387,11 @@ class Board:
         # If this location is in bounds, add the tile to our list
         currTile = self.getTile(tile.x + dx, tile.y + dy)
         if currTile != None:
+          # Remove false neighbors
+          if currTile.isWater(): continue
+          if tile.x % 2 == 0:
+            if currTile.y % 2 == 1:
+              continue
           neighbors.append(currTile)
 
     return neighbors
@@ -428,11 +433,10 @@ class Board:
       for hexagonid in settlement.hexagonids:
         hexagon = self.hexagons[hexagonid]
         if hexagon.number == dieRoll and settlement.player == playerIndex:
-          for resource in hexagon.resource:
             if settlement.structure == Structure["CITY"]:
-              resources[resource] += 2
+              resources[hexagon.resource] += 2
             else:
-              resources[resource] += 1
+              resources[hexagon.resource] += 1
                 
     return resources
 

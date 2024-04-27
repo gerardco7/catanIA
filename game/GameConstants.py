@@ -33,6 +33,13 @@ Structure = {
 
 VERBOSE = True
 
+LAYOUT_n = 1
+
+LAYOUT = [
+  [[[0, 2],[0, 3]], [[1, 4],[1, 5]], [[2, 0],[2, 1]], [[4, 6],[4, 7]]],
+  [[[5, 8],[5, 7]], [[3, 8],[2, 8]], [[3, 3],[3, 4]], [[0, 7],[0, 8]]],
+]
+
 VICTORY_POINTS_TO_WIN = 10
 SETTLEMENT_VICTORY_POINTS = 1
 CITY_VICTORY_POINTS = SETTLEMENT_VICTORY_POINTS + 1
