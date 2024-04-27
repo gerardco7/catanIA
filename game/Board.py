@@ -428,7 +428,7 @@ class Board:
       for hexagonid in settlement.hexagonids:
         hexagon = self.hexagons[hexagonid]
         if hexagon.number == dieRoll and settlement.player == playerIndex:
-          for resource in settlement.resources:
+          for resource in hexagon.resource:
             if settlement.structure == Structure["CITY"]:
               resources[resource] += 2
             else:

@@ -266,11 +266,13 @@ class Game:
         currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
         turnNumber += 1
 
-      for agentIndex in range(self.gameState.getNumPlayerAgents()):
-        currentAgent.collectInitialResources(self.gameState.board)
+    for agentIndex in range(self.gameState.getNumPlayerAgents()):
+      currentAgent = self.gameState.playerAgents[agentIndex]
+      currentAgent.collectInitialResources(self.gameState.board)
+      currentAgentIndex = (currentAgentIndex+1) % self.gameState.getNumPlayerAgents()
 
-        if VERBOSE:
-          currentAgent.printresources()
+      if VERBOSE:
+        currentAgent.printresources()
 
     while (self.gameState.gameOver() < 0):
       # Initial information
