@@ -1,4 +1,4 @@
-from BoardCopy import *
+from Board import *
 from GameConstants import *
 from Agents import *
 
